@@ -1,4 +1,4 @@
-# Phone JDBC Project
+# Phones JDBC Project
 
 A Spring-based Java application for managing phone inventory with CRUD operations and advanced sorting/filtering capabilities using JDBC and PostgreSQL database.
 
