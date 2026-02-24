@@ -1,32 +1,30 @@
-# Phone Management System
+# Phone JDBC Project
 
-A Spring-based Java application for managing phone inventory with CRUD operations and advanced sorting/filtering capabilities using PostgreSQL database.
+A Spring-based Java application for managing phone inventory with CRUD operations and advanced sorting/filtering capabilities using JDBC and PostgreSQL database.
 
 ## Project Overview
 
-This application demonstrates a layered architecture using Spring Framework for dependency injection and JDBC for database operations. It manages phone records with features like adding, removing, sorting, and filtering phones by various attributes.
+This application demonstrates direct database operations using Spring Framework for dependency injection and JDBC for data access. It manages phone records with features like adding, removing, sorting, and filtering phones by various attributes through a DAO layer.
 
 ## Technology Stack
 
 - **Java**: 21
 - **Spring Framework**: 7.0.3 (Spring Core & Context)
 - **Database**: PostgreSQL
+- **JDBC**: Direct database connectivity
 - **Build Tool**: Maven
-- **Architecture**: Layered (DAO, Service, UI)
+- **Architecture**: DAO Pattern with Spring DI
 
 ## Project Structure
 
 ```
-Phone_Core_Spring/
+Phone-JDBC/
 ├── src/main/java/org/example/
 │   ├── entity/
 │   │   └── Phone.java                 # Entity class representing phone data
 │   ├── dao/
 │   │   ├── PhoneDao.java              # DAO interface
 │   │   └── PhoneDaoImpl.java          # DAO implementation with JDBC
-│   ├── service/
-│   │   ├── PhoneService.java          # Service interface
-│   │   └── PhoneServiceImpl.java      # Service implementation with business logic
 │   └── ui/
 │       └── UserInterface.java         # Main application entry point
 ├── src/main/resources/
@@ -76,19 +74,10 @@ String url = "jdbc:postgresql://localhost:5433/demo";
 
 ### Spring Configuration
 
-The application supports two configuration approaches:
-
-1. **XML-based Configuration** (`applicationContext.xml`):
-```xml
-<bean id="phoneDao" class="org.example.dao.PhoneDaoImpl"/>
-<bean id="phoneService" class="org.example.service.PhoneServiceImpl">
-    <constructor-arg ref="phoneDao"/>
-</bean>
-```
-
-2. **Annotation-based Configuration** (Active):
-- `@Component` annotations on DAO and Service classes
+The application uses annotation-based configuration:
+- `@Component(value="pdao")` on PhoneDaoImpl class
 - `@Configuration` and `@ComponentScan` on UserInterface class
+- Spring manages DAO bean lifecycle and dependency injection
 
 
 
@@ -119,49 +108,41 @@ The application supports two configuration approaches:
 
 ### Adding Phones
 ```java
-phoneService.addPhone(new Phone(1, "iPhone 13", "Apple", "Smartphone", 999.99, LocalDate.parse("2021-09-24")));
+phoneDao.addPhone(new Phone(1, "iPhone 13", "Apple", "Smartphone", 999.99, LocalDate.parse("2021-09-24")));
 ```
 
 ### Retrieving All Phones
 ```java
-List<Phone> phones = phoneService.findAll();
+List<Phone> phones = phoneDao.findAll();
 phones.forEach(System.out::println);
 ```
 
 ### Sorting by Price
 ```java
-phoneService.sortByPrice();  // Ascending
-phoneService.sortPriceDescending();  // Descending
+phoneDao.sortByPrice();  // Ascending
+phoneDao.sortPriceDescending();  // Descending
 ```
 
 ### Filtering by Brand
 ```java
-List<Phone> applePhones = phoneService.filterByBrand("Apple");
+List<Phone> applePhones = phoneDao.filterByBrand("Apple");
 ```
 
 ## Architecture Layers
 
 ### 1. Entity Layer
 - `Phone.java`: POJO with getters, setters, and toString method
+- Represents phone data with attributes: id, name, brand, category, cost, releaseDate
 
 ### 2. DAO Layer
 - `PhoneDao`: Interface defining data access methods
-- `PhoneDaoImpl`: JDBC implementation with SQL queries
+- `PhoneDaoImpl`: JDBC implementation with direct SQL queries
+- Uses PreparedStatement for secure database operations
+- Implements CRUD operations and sorting/filtering methods
 
-### 3. Service Layer
-- `PhoneService`: Interface defining business operations
-- `PhoneServiceImpl`: Business logic with validation and Stream API operations
-
-### 4. UI Layer
+### 3. UI Layer
 - `UserInterface`: Main class with Spring context initialization
-
-## Validation Rules
-
-- Phone object cannot be null
-- Brand, category, and name cannot be empty
-- Cost must be greater than 0
-- Release date cannot be in the future
-- ID must be positive for removal operations
+- Entry point for the application
 
 ## Dependencies
 
